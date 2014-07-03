@@ -79,8 +79,9 @@
 (defn find-val-in-platform-idx
   [db-annot platform k value]
   {:pre [(some #(= k %) (indexed-fields db-annot platform))]}
-  (let [p (-> db-annot (get platform) :idx (get k))]
-    (get p value [])))
+  (let [p (-> db-annot (get platform) :idx (get k))
+        upcase-val (clojure.string/upper-case value)]
+    (get p upcase-val [])))
 
 
 (defn- json-response [dic]

@@ -1,5 +1,9 @@
 (ns geo-annot.soft)
 
+;;; See http://www.ncbi.nlm.nih.gov/geo/info/soft.html#format
+(def soft-special-chars
+  #{\^ \! \#})
+
 (defn- split-line-in-tabs
   [line]
   (clojure.string/split line #"\t"))
@@ -9,7 +13,7 @@
     (split-line-in-tabs line)) )
 
 (defn- parse-lines-ignore-hdr [lines]
-  (let [first-line (first lines)
+  (let [first-line (-> lines first clojure.string/lower-case)
         rest-lines (next lines)]
     (if (= "!platform_table_begin" first-line)
       #(parse-data-table rest-lines)
