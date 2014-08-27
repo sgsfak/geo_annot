@@ -1,4 +1,5 @@
 (ns geo-annot.core
+  (:gen-class)
   (:use [geo-annot.soft :as soft])
   (:use clojure.pprint)
   (:require [clojure.data.json :as json])
@@ -146,7 +147,7 @@
                 [:a {:href (str "http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=" platform) :target "_blank"} platform]]
                [:form.horizontal-form {:method "post"}
                 [:div.form-group 
-                 [:label.col-sm-2.control-label {:for "genes"} "List of identifiers"]
+                 [:label.col-sm-6.control-label {:for "genes"} "List of identifiers (one in each line)"]
                  [:textarea#genes.form-control {:name "genes" :rows "10"}] ]
                 [:div.form-group
                  [:label.col-sm-2.control-label {:for "field"} "Search field"]
@@ -174,7 +175,8 @@
 
 (defn search-platform [db req]
   (let [f (-> req :params :field)
-        genes (-> req :params :genes clojure.string/split-lines)
+        lines (-> req :params :genes clojure.string/split-lines)
+        genes (map clojure.string/trim lines)
         plat (-> req :params :platform)
         fields-to-return (-> req :params :ret)
         cols fields-to-return ;;(platform-attributes db plat)
@@ -205,12 +207,9 @@
     (files "/static/") ;; static file url prefix /static, in `public` folder
     (not-found "<p>Page not found.</p>")))
 
-(def app
-  (-> (make-db-annot "platforms")  
-      app-routes
-      site))
-
-
 (defn -main [& args]
-   (run-server app {:port 9797}))
+(let [app (-> (make-db-annot "platforms")  
+              app-routes
+              site) ]
+  (run-server app {:port 9797})))
 
